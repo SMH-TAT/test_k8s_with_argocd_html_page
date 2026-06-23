@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Redirect</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Scan QR Code</h2>
+
+    <img id="qrImg" class="qr-code" />
+
+    <br>
+
+    <button onclick="redirectToApp()">Continue</button>
+</div>
+
+<script>
+    // 1. Get query param from URL
+    const params = new URLSearchParams(window.location.search);
+    const proposalId = params.get("proposalId");
+
+    // 2. Build QR data
+    const qrData = "http://localhost:8080/migp/payment?proposalId=" + proposalId;
+
+    // 3. Generate QR
+    document.getElementById("qrImg").src =
+        "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data="
+        + encodeURIComponent(qrData);
+
+    // 4. Redirect button
+    function redirectToApp() {
+        window.location.href =
+            "http://localhost:8080/migp/manage/thirdparty/payment/paymentConfirmTPLMotorProposal.xhtml"
+            + proposalId;
+    }
+</script>
+
+</body>
+</html>
