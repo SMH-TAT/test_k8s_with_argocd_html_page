@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: html-web-app
+  labels:
+    app: html-web
+spec:
+  replicas: 3 # Pod ၃ ခု တိတိကျကျ Run ရန်
+  selector:
+    matchLabels:
+      app: html-web
+  template:
+    metadata:
+      labels:
+        app: html-web
+    spec:
+      initContainers:
+      - name: git-sync
+        image: alpine/git:latest
+        command:
+        - "sh"
+        - "-c"
+        # 💡 သင့် Repository အမည်အတိုင်း တိုက်ရိုက် ထည့်သွင်းပေးထားပါသည်
+        - "git clone https://github.com/SMH-TAT/test_k8s_with_argocd_html_page.git /tmp/repo && cp -r /tmp/repo/* /usr/share/nginx/html/"
+        volumeMounts:
+        - name: web-content
+          mountPath: /usr/share/nginx/html/
+      
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: web-content
+          mountPath: /usr/share/nginx/html/
+      
+      volumes:
+      - name: web-content
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: html-web-service
+spec:
+  type: NodePort
+  selector:
+    app: html-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
